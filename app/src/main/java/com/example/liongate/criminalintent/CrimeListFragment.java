@@ -20,6 +20,8 @@ import java.util.List;
 
 public class CrimeListFragment extends Fragment {
 
+    private static final int REQUEST_CRIME = 1;
+
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
 
@@ -55,6 +57,14 @@ public class CrimeListFragment extends Fragment {
 
 
     }
+    @Override
+    public void onActivityResult(int requestCode,int resultCode, Intent data){
+
+        if (requestCode == REQUEST_CRIME) {
+            //do something with result
+        }
+
+    }
 
     private class CrimeHolder extends RecyclerView.ViewHolder
                                 implements View.OnClickListener {
@@ -87,12 +97,14 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View view) {
 
-
             Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getId());
-            startActivity(intent);
 
+            startActivityForResult(intent, REQUEST_CRIME);
         }
+
     }
+
+
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder>{
 
