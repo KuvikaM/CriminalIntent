@@ -25,6 +25,7 @@ public class CrimeListFragment extends Fragment {
 
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
+    private int mCurrentPosition;
 
     @Nullable
     @Override
@@ -43,7 +44,8 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        updateUI();
+        //updateUI();
+        updateUI(mCurrentPosition);
     }
 
     private void updateUI(){
@@ -54,10 +56,21 @@ public class CrimeListFragment extends Fragment {
         mCrimeRecyclerView.setAdapter(mAdapter);
         } else{
             mAdapter.notifyDataSetChanged();
+            mAdapter.notifyItemChanged(mCurrentPosition);
         }
-
-
     }
+    @Overload
+    private void updateUI(int currentPosition){
+        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        List<Crime> crimes = crimeLab.getCrimes();
+        if (mAdapter == null){
+            mAdapter = new CrimeAdapter(crimes);
+            mCrimeRecyclerView.setAdapter(mAdapter);
+        } else{
+            mAdapter.notifyItemChanged(currentPosition);
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode,int resultCode, Intent data){
 
@@ -105,6 +118,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View view) {
 
+            mCurrentPosition = getAdapterPosition();
             Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getId());
 
             startActivityForResult(intent, REQUEST_CRIME);
