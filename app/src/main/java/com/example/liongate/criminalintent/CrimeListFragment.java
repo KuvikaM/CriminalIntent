@@ -44,8 +44,8 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        //updateUI();
-        updateUI(mCurrentPosition);
+        updateUI();
+        //updateUI(mCurrentPosition);
     }
 
     private void updateUI(){
@@ -56,7 +56,7 @@ public class CrimeListFragment extends Fragment {
         mCrimeRecyclerView.setAdapter(mAdapter);
         } else{
             mAdapter.notifyDataSetChanged();
-            mAdapter.notifyItemChanged(mCurrentPosition);
+           // mAdapter.notifyItemChanged(mCurrentPosition);
         }
     }
     @Overload
