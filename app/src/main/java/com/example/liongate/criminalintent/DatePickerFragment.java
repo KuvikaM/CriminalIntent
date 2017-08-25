@@ -25,7 +25,7 @@ public class DatePickerFragment extends DialogFragment {
     public static final String EXTRA_DATE = "liongate.criminalintent.date";
 
     private  static final String ARG_DATE = "date";
-
+    private Calendar calendar;
     private DatePicker mDatePicker;
 
     public static DatePickerFragment newInstance(Date date){
@@ -41,7 +41,7 @@ public class DatePickerFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Date date = (Date) getArguments().getSerializable(ARG_DATE);
 
-        Calendar calendar = Calendar.getInstance();
+        calendar = Calendar.getInstance();
         calendar.setTime(date);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
@@ -62,8 +62,10 @@ public class DatePickerFragment extends DialogFragment {
                         int year = mDatePicker.getYear();
                         int month =  mDatePicker.getMonth();
                         int day =  mDatePicker.getDayOfMonth();
+                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                        int minute = calendar.get(Calendar.MINUTE);
 
-                        Date date = new GregorianCalendar(year,month,day).getTime();
+                        Date date = new GregorianCalendar(year,month,day,hour,minute).getTime();
                         sendResult(Activity.RESULT_OK,date);
                     }
                 })
