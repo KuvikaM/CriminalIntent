@@ -10,7 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -20,38 +20,41 @@ import java.util.GregorianCalendar;
  * Created by Liongate on 24.08.2017.
  */
 
-public class DatePickerFragment extends DialogFragment {
+public class TimePickerFragment extends DialogFragment {
 
-    public static final String EXTRA_DATE = "liongate.criminalintent.date";
-
-    private  static final String ARG_DATE = "date";
+    public static final String EXTRA_TIME = "liongate.criminalintent.time";
+    private  static final String ARG_TIME = "time";
     private Calendar calendar;
-    private DatePicker mDatePicker;
+    private TimePicker mTimePicker;
 
-    public static DatePickerFragment newInstance(Date date){
+    public static TimePickerFragment newInstance(Date date){
         Bundle args = new Bundle();
-        args.putSerializable(ARG_DATE,date);
+        args.putSerializable(ARG_TIME,date);
 
-        DatePickerFragment fragment = new DatePickerFragment();
+        TimePickerFragment fragment = new TimePickerFragment();
         fragment.setArguments(args);
         return  fragment;
     }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Date date = (Date) getArguments().getSerializable(ARG_DATE);
+        Date date = (Date) getArguments().getSerializable(ARG_TIME);
+
 
         calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_time,null);
+
+        mTimePicker = (TimePicker) v.findViewById(R.id.dialog_time_time_picker);
+        mTimePicker.setCurrentHour(hour);
+        mTimePicker.setCurrentMinute(minute);
 
 
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_date,null);
-
-        mDatePicker = (DatePicker) v.findViewById(R.id.dialog_date_date_picker);
-        mDatePicker.init(year,month,day,null);
+        //mDatePicker.init(year,month,day,null);
 
         return new AlertDialog.Builder(getActivity())
                 .setView(v)
@@ -59,13 +62,15 @@ public class DatePickerFragment extends DialogFragment {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        int year = mDatePicker.getYear();
-                        int month =  mDatePicker.getMonth();
-                        int day =  mDatePicker.getDayOfMonth();
-                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                        int minute = calendar.get(Calendar.MINUTE);
+                        int hour = mTimePicker.getCurrentHour();
+                        int minute = mTimePicker.getCurrentMinute();
 
-                        Date date = new GregorianCalendar(year,month,day,hour,minute).getTime();
+
+                        Date date = new GregorianCalendar(calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH),
+                                hour,minute).getTime();
+
                         sendResult(Activity.RESULT_OK,date);
                     }
                 })
@@ -76,7 +81,7 @@ public class DatePickerFragment extends DialogFragment {
             return;
         }
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_DATE,date);
+        intent.putExtra(EXTRA_TIME,date);
 
         getTargetFragment().onActivityResult(getTargetRequestCode(),resultCode,intent);
     }
