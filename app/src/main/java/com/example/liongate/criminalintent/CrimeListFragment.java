@@ -32,6 +32,7 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter mAdapter;
     private int mCurrentPosition;
     private boolean mSubtitleVisible;
+    private TextView mTextView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +45,8 @@ public class CrimeListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_crime_list,container,false);
+
+        mTextView = (TextView)v.findViewById(R.id.crime_list_message_text_view);
 
         mCrimeRecyclerView = (RecyclerView) v.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -126,6 +129,9 @@ public class CrimeListFragment extends Fragment {
             mAdapter.notifyDataSetChanged();
            // mAdapter.notifyItemChanged(mCurrentPosition);
         }
+        if (crimes.size()>0){
+            mTextView.setVisibility(View.GONE);
+        }else { mTextView.setVisibility(View.VISIBLE);}
         updateSubtitle();
     }
     @Overload
