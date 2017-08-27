@@ -66,6 +66,8 @@ public class CrimeListFragment extends Fragment {
         //updateUI(mCurrentPosition);
     }
 
+
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -126,8 +128,9 @@ public class CrimeListFragment extends Fragment {
         mAdapter = new CrimeAdapter(crimes);
         mCrimeRecyclerView.setAdapter(mAdapter);
         } else{
+            mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
-           // mAdapter.notifyItemChanged(mCurrentPosition);
+            // mAdapter.notifyItemChanged(mCurrentPosition);
         }
         if (crimes.size()>0){
             mTextView.setVisibility(View.GONE);
@@ -186,6 +189,8 @@ public class CrimeListFragment extends Fragment {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                     mCrime.setSolved(isChecked);
+                    CrimeLab.get(getActivity())
+                            .updateCrime(mCrime);
                 }
             });
         }
@@ -230,6 +235,10 @@ public class CrimeListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+
+        public void setCrimes(List<Crime> crimes){
+            mCrimes = crimes;
         }
     }
 }
