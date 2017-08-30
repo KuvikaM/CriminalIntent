@@ -2,10 +2,15 @@ package com.example.liongate.criminalintent;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ShareCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -34,6 +39,7 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
+    private static final int REQUEST_CONTACT = 2;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -41,6 +47,7 @@ public class CrimeFragment extends Fragment {
     private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
     private Button mReportButton;
+    private Button mSuspectButton;
 
     public static CrimeFragment newInstance(UUID crimeId){
         Bundle args = new Bundle();
@@ -141,14 +148,40 @@ public class CrimeFragment extends Fragment {
         mReportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT,getCrimeReport());
-                intent.putExtra(Intent.EXTRA_SUBJECT,getString(R.string.crine_report_subject));
+                Intent intent = ShareCompat.IntentBuilder.from(getActivity())
+                            .setType("text/plain")
+                            .setText(getCrimeReport())
+                            .setSubject(getString(R.string.crine_report_subject))
+                            .getIntent();
+
+
+                //Intent intent = new Intent(Intent.ACTION_SEND);
+                //intent.setType("text/plain");
+                //intent.putExtra(Intent.EXTRA_TEXT,getCrimeReport());
+                //intent.putExtra(Intent.EXTRA_SUBJECT,getString(R.string.crine_report_subject));
                 intent = Intent.createChooser(intent,getString(R.string.send_report));
                 startActivity(intent);
             }
         });
+
+        final Intent pickContact = new Intent(Intent.ACTION_PICK,
+                                            ContactsContract.Contacts.CONTENT_URI);
+        mSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(pickContact,REQUEST_CONTACT);
+            }
+        });
+        if (mCrime.getSuspect() != null){
+            mSuspectButton.setText(mCrime.getSuspect());
+        }
+// Защита от отсутствия контактных приложений
+        PackageManager packageManager = getActivity().getPackageManager();
+        if (packageManager.resolveActivity(pickContact,PackageManager.MATCH_DEFAULT_ONLY) == null){
+            mSuspectButton.setEnabled(false);
+        }
+
         return v;
     }
 
@@ -190,7 +223,27 @@ public class CrimeFragment extends Fragment {
             updateTime();
             updateDate();
 
-        }
+        } else if(requestCode == REQUEST_CONTACT && data != null){
+            Uri contactUri = data.getData();
+
+            String[] queryFields = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+
+            Cursor c = getActivity().getContentResolver()
+                                .query(contactUri,queryFields,null,null,null);
+
+            try{
+                if (c.getCount() == 0 ){
+                    return;
+                }
+                c.moveToFirst();
+                String suspect = c.getString(0);
+                mCrime.setSuspect(suspect);
+                mSuspectButton.setText(suspect);
+            }
+            finally {
+                c.close();
+            }
+            }
     }
 
     private void updateDate() {
